@@ -13,22 +13,21 @@ from sklearn.model_selection import KFold
 from sklearn.ensemble import RandomForestClassifier
 
 def read_images():
-    # TODO zmienic to zeby labelami byly nazwy katalogow
     images = []
     labels = []
-    calssified_images = {
-        0: [],
-        1: [],
-        2: [],
-        3: [],
-        4: []
-    }
+    calssified_images = {}
+
     for class_id, class_dir in enumerate(sorted(Path('data').iterdir())):
+        # nazwa folderu ze zdjeciami jako klucz slownika
+        class_name = str(class_dir)
+        class_name = class_name[5:]
+        # Nazwy katalogu ze zdjeciami nazwami klas
+        calssified_images.update({class_name: []})
         for image_path in class_dir.iterdir():
             image = cv2.imread(str(image_path), cv2.IMREAD_COLOR)
-            calssified_images[class_id].append(image)
+            calssified_images[class_name].append(image)
             images.append(image)
-            labels.append(class_id)
+            labels.append(class_name)
     # print(labels)
     return images, calssified_images, labels
 
