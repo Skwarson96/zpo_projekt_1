@@ -10,7 +10,11 @@ from sklearn import cluster
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import KFold
+from sklearn.svm import SVC
+from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
+
+
 
 def read_images():
     images = []
@@ -25,6 +29,46 @@ def read_images():
         calssified_images.update({class_name: []})
         for image_path in class_dir.iterdir():
             image = cv2.imread(str(image_path), cv2.IMREAD_COLOR)
+
+            # TODO filtrowanie zlych obrazow
+            # chyba nie jest potrzebne
+
+            background = np.zeros((500, 750, 3), np.uint8)
+            image_width = float(np.shape(image)[1])
+            image_height = float(np.shape(image)[0])
+            background_width = float(np.shape(background)[1])
+            background_height = float(np.shape(background)[0])
+
+            # resize_img = cv2.resize(image, (500, 750), interpolation=cv2.INTER_AREA)
+            # image = resize_img
+
+            if (image_width/background_width > 1) or (image_height/background_height > 1):
+                # print(image_path)
+                # print("width ratio:", image_width/background_width, 'height ratio:', image_height/background_height)
+                width_ratio = image_width/background_width
+                height_ratio = image_height/background_height
+                # resize_img = cv2.resize(image, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
+                if width_ratio > height_ratio:
+                    resize_img = cv2.resize(image, None, fx=1/width_ratio, fy=1/height_ratio, interpolation=cv2.INTER_AREA)
+                else:
+                    resize_img = cv2.resize(image, None, fx=1/width_ratio, fy=1/height_ratio, interpolation=cv2.INTER_AREA)
+                # print("background shape", np.shape(background))
+                # print("resize image shape", np.shape(resize_img))
+                # print("image shape", np.shape(image))
+                image = resize_img
+
+                # cv2.imshow('img', image)
+                # cv2.imshow('resize_img', resize_img)
+                # cv2.waitKey()
+            else:
+                # przypisanie do tla obrazu mniejszego niz przyjete wymiary
+                background[0:int(image_height), 0:int(image_width)] = image
+                # zapisanie tla do zmiennej image
+                image = background
+            #
+            # # cv2.imshow('img', image)
+            # # cv2.waitKey()
+
             calssified_images[class_name].append(image)
             images.append(image)
             labels.append(class_name)
@@ -42,7 +86,7 @@ def show_images(image_data):
 
 
 def divide_set(image_data, labels):
-    train_images, valid_images, train_labels, valid_labels = train_test_split(image_data, labels, train_size=0.7, random_state=42, stratify=labels)
+    train_images, valid_images, train_labels, valid_labels = train_test_split(image_data, labels, train_size=0.8, random_state=42, stratify=labels)
     print('Len train_images', len(train_images))
     print('Len train_labels', len(train_labels))
     print('Len valid_images', len(valid_images))
@@ -71,11 +115,13 @@ def apply_feature_transform(images, feature_detector_descriptor, vocab_model, n_
 
 
 def projekt():
-    # TODO filtrowanie zlych obrazow
+
     # TODO zwiekszenie ilosci zbioru treningowego poprzez augmentacje
+
     images, classified_images, labels = read_images()
     print(classified_images.keys())
-    print(len(classified_images[0]))
+    # print(type(classified_images.keys()))
+    print(len(classified_images[list(classified_images.keys())[0]]))
     print(len(images))
 
     # show_images(classified_images)
@@ -94,17 +140,15 @@ def projekt():
         for descriptor in feature_detector_descriptor.detectAndCompute(image, None)[1]:
             train_descriptors.append(descriptor)
 
-    #
-    #
-    # print(len(train_descriptors))
-    #
-    #
     NB_WORDS = 128
     kmeans = cluster.KMeans(n_clusters=NB_WORDS, random_state=42)
     kmeans.fit(train_descriptors)
     print(kmeans.cluster_centers_.shape)
+    print(type(kmeans))
+    print(kmeans)
 
-
+    print(len(train_descriptors))
+    print(train_descriptors[0])
     descriptors = feature_detector_descriptor.detectAndCompute(valid_images[0], None)[1]
     # print(descriptors)
     # convert_descriptors_to_histogram(descriptors, kmeans, NB_WORDS)
@@ -116,31 +160,40 @@ def projekt():
     y_valid = valid_labels
 
     # classifier = DecisionTreeClassifier()
-    classifier = RandomForestClassifier()
+    # classifier = RandomForestClassifier(verbose=True)
+
+    # Support Vector Classification
+    classifier = SVC()
     classifier.fit(X_train, y_train)
 
+    pickle.dump(y_train, open('./vocab_model.p', 'wb'))
     pickle.dump(classifier, open('./clf.p', 'wb'))
 
-    print('RandomForestClassifier:')
+    # print('RandomForestClassifier:')
+    print('SVC:')
     print(classifier.score(X_train, y_train))
     print(classifier.score(X_valid, y_valid))
 
-    param_grid = {
-        'max_depth': [1, 5, 10, 30, 100],
-        'n_estimators': [1, 5, 10, 50, 100],
-        'criterion': ['gini', 'entropy']
-    }
-
-    k_fold = KFold(n_splits=5)
-
-    grid_search = GridSearchCV(classifier, param_grid, cv=k_fold)
-    grid_search.fit(X_train, y_train)
-
-    print('grid serch:')
-    print(grid_search.score(X_train, y_train))
-    print(grid_search.score(X_valid, y_valid))
-
-    print(grid_search.best_params_)
+    # param_grid = {
+    #     'max_depth': [1, 5, 10, 30, 100],
+    #     'n_estimators': [1, 5, 10, 50, 100],
+    #     'criterion': ['gini', 'entropy']
+    # }
+    # tuned_parameters = [{'kernel': ['rbf'],'C': [1, 3, 5, 8, 10]}] #,
+    #                     # {'kernel': ['linear'], 'C': [1, 10, 100, 200, 500]},
+    #                     # {'kernel': ['poly'], 'C': [1, 10, 100, 200, 500]},
+    #                     # {'kernel': ['sigmoid'], 'C': [1, 10, 100, 200, 500]}]
+    # k_fold = KFold(n_splits=5)
+    #
+    # svc = SVC()
+    # grid_search = GridSearchCV(svc, tuned_parameters, cv=5)
+    # grid_search.fit(X_train, y_train)
+    #
+    # print('grid serch:')
+    # print(grid_search.score(X_train, y_train))
+    # print(grid_search.score(X_valid, y_valid))
+    #
+    # print(grid_search.best_params_)
 
 
 
