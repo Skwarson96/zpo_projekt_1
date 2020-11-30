@@ -4,7 +4,7 @@ import numpy as np
 from pathlib import Path
 import random
 import sys, os
-
+import shutil
 
 def read_image():
     img_dict = {}
@@ -34,7 +34,7 @@ def rotation(img_dict, img_names):
         isFile = os.path.isdir(path)
         if isFile:
             # delete old dir
-            os.rmdir(path)
+            shutil.rmtree(path, ignore_errors=True)
         # make new dir
         os.mkdir(path)
 
@@ -61,15 +61,39 @@ def rotation(img_dict, img_names):
             # save rotated image
             cv2.imwrite(path + '/' + str(img_name) + '_rotated_' + str(angle), rotate_img)
 
+def flip(img_dict, img_names):
+    for key in img_dict:
+        # reading path to file
+        pathname = os.path.dirname(sys.argv[0])
+        # make director for flipped images
+        path = pathname + '/' + key + '_flipped_image'
+
+        # check if the dir exists
+        isFile = os.path.isdir(path)
+        if isFile:
+            # delete old dir
+            shutil.rmtree(path, ignore_errors=True)
+        # make new dir
+        os.mkdir(path)
+
+        for idx in range(len(img_dict[key])):
+            image = img_dict[key][idx]
+            # horizontal flip
+            flipped_image = cv2.flip(image, 1)
+
+            # cv2.imshow("flipped_image", flipped_image)
+            # cv2.waitKey()
+
+            # take image name from dict
+            img_name = img_names[key][idx]
+            # save flipped image
+            cv2.imwrite(path + '/' + str(img_name) + '_flipped', flipped_image)
+
 
 def main():
     image_dict, image_names = read_image()
     rotation(image_dict, image_names)
-
-
-
-    # print(image_dict)
-
+    # flip(image_dict, image_names)
 
 
 if __name__ == '__main__':
