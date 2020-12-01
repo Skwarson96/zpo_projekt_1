@@ -89,11 +89,79 @@ def flip(img_dict, img_names):
             # save flipped image
             cv2.imwrite(path + '/' + str(img_name) + '_flipped', flipped_image)
 
+def lightening(img_dict, img_names):
+    for key in img_dict:
+        # reading path to file
+        pathname = os.path.dirname(sys.argv[0])
+        # make director for brightened images
+        path = pathname + '/' + key + '_brightened_image'
+
+        # check if the dir exists
+        isFile = os.path.isdir(path)
+        if isFile:
+            # delete old dir
+            shutil.rmtree(path, ignore_errors=True)
+        # make new dir
+        os.mkdir(path)
+
+        for idx in range(len(img_dict[key])):
+            image = img_dict[key][idx]
+
+            brightened_image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+            bright_value = random.randint(50, 100)
+
+            brightened_image_hsv[:,:,2] = cv2.add(brightened_image_hsv[:,:,2], bright_value)
+            brightened_image = cv2.cvtColor(brightened_image_hsv, cv2.COLOR_HSV2BGR)
+
+            # cv2.imshow('image', image)
+            # cv2.imshow('brightened_image', brightened_image)
+            # cv2.waitKey()
+
+            # take image name from dict
+            img_name = img_names[key][idx]
+            # save brightened image
+            cv2.imwrite(path + '/' + str(img_name) + '_brightened', brightened_image)
+
+def darkening(img_dict, img_names):
+    for key in img_dict:
+        # reading path to file
+        pathname = os.path.dirname(sys.argv[0])
+        # make director for brightened images
+        path = pathname + '/' + key + '_darkened_image'
+
+        # check if the dir exists
+        isFile = os.path.isdir(path)
+        if isFile:
+            # delete old dir
+            shutil.rmtree(path, ignore_errors=True)
+        # make new dir
+        os.mkdir(path)
+
+        for idx in range(len(img_dict[key])):
+            image = img_dict[key][idx]
+
+            darkened_image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+            dark_value = random.randint(-100, -50)
+
+            darkened_image_hsv[:,:,2] = cv2.add(darkened_image_hsv[:,:,2], dark_value)
+            darkened_image = cv2.cvtColor(darkened_image_hsv, cv2.COLOR_HSV2BGR)
+
+            # cv2.imshow('image', image)
+            # cv2.imshow('darkened_image', darkened_image)
+            # cv2.waitKey()
+
+            # take image name from dict
+            img_name = img_names[key][idx]
+            # save brightened image
+            cv2.imwrite(path + '/' + str(img_name) + '_darkened', darkened_image)
+
 
 def main():
     image_dict, image_names = read_image()
-    rotation(image_dict, image_names)
+    # rotation(image_dict, image_names)
     # flip(image_dict, image_names)
+    lightening(image_dict, image_names)
+    darkening(image_dict, image_names)
 
 
 if __name__ == '__main__':
