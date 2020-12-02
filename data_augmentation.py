@@ -60,6 +60,7 @@ def rotation(img_dict, img_names):
             img_name = img_names[key][idx]
             # save rotated image
             cv2.imwrite(path + '/' + str(img_name) + '_rotated_' + str(angle), rotate_img)
+    print("Rotation finished")
 
 def flip(img_dict, img_names):
     for key in img_dict:
@@ -88,6 +89,7 @@ def flip(img_dict, img_names):
             img_name = img_names[key][idx]
             # save flipped image
             cv2.imwrite(path + '/' + str(img_name) + '_flipped', flipped_image)
+    print("Flip finished")
 
 def lightening(img_dict, img_names):
     for key in img_dict:
@@ -121,6 +123,7 @@ def lightening(img_dict, img_names):
             img_name = img_names[key][idx]
             # save brightened image
             cv2.imwrite(path + '/' + str(img_name) + '_brightened', brightened_image)
+    print("Light finished")
 
 def darkening(img_dict, img_names):
     for key in img_dict:
@@ -154,12 +157,13 @@ def darkening(img_dict, img_names):
             img_name = img_names[key][idx]
             # save brightened image
             cv2.imwrite(path + '/' + str(img_name) + '_darkened', darkened_image)
+    print("Dark finished")
 
 
 def main():
     image_dict, image_names = read_image()
-    # rotation(image_dict, image_names)
-    # flip(image_dict, image_names)
+    rotation(image_dict, image_names)
+    flip(image_dict, image_names)
     lightening(image_dict, image_names)
     darkening(image_dict, image_names)
 
