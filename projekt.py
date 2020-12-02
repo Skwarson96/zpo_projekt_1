@@ -15,23 +15,13 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
 
 
-
 def read_images():
     images = []
     labels = []
-    calssified_images = {}
 
-    for class_id, class_dir in enumerate(sorted(Path('data').iterdir())):
-        # nazwa folderu ze zdjeciami jako klucz slownika
-        class_name = str(class_dir)
-        class_name = class_name[5:]
-        # Nazwy katalogu ze zdjeciami nazwami klas
-        calssified_images.update({class_name: []})
+    for class_id, class_dir in enumerate(sorted(Path('data_testowe').iterdir())):
         for image_path in class_dir.iterdir():
             image = cv2.imread(str(image_path), cv2.IMREAD_COLOR)
-
-            # TODO filtrowanie zlych obrazow
-            # chyba nie jest potrzebne
 
             background = np.zeros((500, 750, 3), np.uint8)
             image_width = float(np.shape(image)[1])
@@ -66,14 +56,13 @@ def read_images():
                 # zapisanie tla do zmiennej image
                 image = background
             #
-            # # cv2.imshow('img', image)
-            # # cv2.waitKey()
+            # cv2.imshow('img', image)
+            # cv2.waitKey()
 
-            calssified_images[class_name].append(image)
             images.append(image)
-            labels.append(class_name)
-    # print(labels)
-    return images, calssified_images, labels
+            labels.append(class_id)
+
+    return images, labels
 
 def show_images(image_data):
     fix, ax = plt.subplots(nrows=5, ncols=5, figsize=(8, 16))
@@ -86,7 +75,7 @@ def show_images(image_data):
 
 
 def divide_set(image_data, labels):
-    train_images, valid_images, train_labels, valid_labels = train_test_split(image_data, labels, train_size=0.8, random_state=42, stratify=labels)
+    train_images, valid_images, train_labels, valid_labels = train_test_split(image_data, labels, train_size=0.7, random_state=42, stratify=labels)
     print('Len train_images', len(train_images))
     print('Len train_labels', len(train_labels))
     print('Len valid_images', len(valid_images))
@@ -116,23 +105,16 @@ def apply_feature_transform(images, feature_detector_descriptor, vocab_model, n_
 
 def projekt():
 
-    # TODO zwiekszenie ilosci zbioru treningowego poprzez augmentacje
-
-    images, classified_images, labels = read_images()
-    print(classified_images.keys())
-    # print(type(classified_images.keys()))
-    print(len(classified_images[list(classified_images.keys())[0]]))
+    images, labels = read_images()
+    print(labels)
     print(len(images))
 
     # show_images(classified_images)
     train_images, valid_images, train_labels, valid_labels = divide_set(images, labels)
     # clusters_()
 
-    feature_detector_descriptor = cv2.ORB_create()
-    # print(feature_detector_descriptor)
-    # print(type(feature_detector_descriptor))
-
-
+    # feature_detector_descriptor = cv2.ORB_create()
+    feature_detector_descriptor = cv2.AKAZE_create()
 
     train_descriptors = []
 
@@ -140,18 +122,15 @@ def projekt():
         for descriptor in feature_detector_descriptor.detectAndCompute(image, None)[1]:
             train_descriptors.append(descriptor)
 
-    NB_WORDS = 128
-    kmeans = cluster.KMeans(n_clusters=NB_WORDS, random_state=42)
-    kmeans.fit(train_descriptors)
-    print(kmeans.cluster_centers_.shape)
-    print(type(kmeans))
-    print(kmeans)
 
-    print(len(train_descriptors))
-    print(train_descriptors[0])
-    descriptors = feature_detector_descriptor.detectAndCompute(valid_images[0], None)[1]
-    # print(descriptors)
-    # convert_descriptors_to_histogram(descriptors, kmeans, NB_WORDS)
+    print('train descriptors list finished')
+    print('train descriptors len:', len(train_descriptors))
+
+    NB_WORDS = 128
+    kmeans = cluster.KMeans(n_clusters=NB_WORDS, random_state=42).fit(train_descriptors)
+
+    print('kmeans fit finished')
+
 
 
     X_train = apply_feature_transform(train_images, feature_detector_descriptor, kmeans, NB_WORDS)
@@ -165,8 +144,8 @@ def projekt():
     # Support Vector Classification
     classifier = SVC()
     classifier.fit(X_train, y_train)
-
-    pickle.dump(y_train, open('./vocab_model.p', 'wb'))
+    print(classifier)
+    pickle.dump(kmeans, open('./vocab_model.p', 'wb'))
     pickle.dump(classifier, open('./clf.p', 'wb'))
 
     # print('RandomForestClassifier:')
