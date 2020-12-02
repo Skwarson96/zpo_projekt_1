@@ -19,7 +19,7 @@ def read_images():
     images = []
     labels = []
 
-    for class_id, class_dir in enumerate(sorted(Path('data_testowe').iterdir())):
+    for class_id, class_dir in enumerate(sorted(Path('data').iterdir())):
         for image_path in class_dir.iterdir():
             image = cv2.imread(str(image_path), cv2.IMREAD_COLOR)
 
@@ -29,8 +29,6 @@ def read_images():
             background_width = float(np.shape(background)[1])
             background_height = float(np.shape(background)[0])
 
-            # resize_img = cv2.resize(image, (500, 750), interpolation=cv2.INTER_AREA)
-            # image = resize_img
 
             if (image_width/background_width > 1) or (image_height/background_height > 1):
                 # print(image_path)
@@ -39,23 +37,29 @@ def read_images():
                 height_ratio = image_height/background_height
                 # resize_img = cv2.resize(image, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
                 if width_ratio > height_ratio:
-                    resize_img = cv2.resize(image, None, fx=1/width_ratio, fy=1/height_ratio, interpolation=cv2.INTER_AREA)
+                    resize_img = cv2.resize(image, None, fx=1/width_ratio, fy=1/width_ratio, interpolation=cv2.INTER_AREA)
                 else:
-                    resize_img = cv2.resize(image, None, fx=1/width_ratio, fy=1/height_ratio, interpolation=cv2.INTER_AREA)
-                # print("background shape", np.shape(background))
-                # print("resize image shape", np.shape(resize_img))
-                # print("image shape", np.shape(image))
-                image = resize_img
+                    resize_img = cv2.resize(image, None, fx=1/height_ratio, fy=1/height_ratio, interpolation=cv2.INTER_AREA)
+
+                resize_img_width = np.shape(resize_img)[1]
+                resize_img_height = np.shape(resize_img)[0]
+
+                # przypisanie do tla obrazu zmniejszonego do przyjetych wymiarow
+                background[0:int(resize_img_height), 0:int(resize_img_width)] = resize_img
+                # zapisanie tla do zmiennej image
+                image = background
+
 
                 # cv2.imshow('img', image)
                 # cv2.imshow('resize_img', resize_img)
                 # cv2.waitKey()
+
             else:
                 # przypisanie do tla obrazu mniejszego niz przyjete wymiary
                 background[0:int(image_height), 0:int(image_width)] = image
                 # zapisanie tla do zmiennej image
                 image = background
-            #
+
             # cv2.imshow('img', image)
             # cv2.waitKey()
 
@@ -144,7 +148,7 @@ def projekt():
     # Support Vector Classification
     classifier = SVC()
     classifier.fit(X_train, y_train)
-    print(classifier)
+
     pickle.dump(kmeans, open('./vocab_model.p', 'wb'))
     pickle.dump(classifier, open('./clf.p', 'wb'))
 
