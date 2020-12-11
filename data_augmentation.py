@@ -159,6 +159,80 @@ def darkening(img_dict, img_names):
             cv2.imwrite(path + '/' + str(img_name) + '_darkened', darkened_image)
     print("Dark finished")
 
+def gaussian_noise(img_dict, img_names):
+    for key in img_dict:
+        # reading path to file
+        pathname = os.path.dirname(sys.argv[0])
+        # make director for gauss noise images
+        path = pathname + '/' + key + '_gauss_noise_image'
+
+        # check if the dir exists
+        isFile = os.path.isdir(path)
+        if isFile:
+            # delete old dir
+            shutil.rmtree(path, ignore_errors=True)
+        # make new dir
+        os.mkdir(path)
+
+        for idx in range(len(img_dict[key])):
+            image = img_dict[key][idx]
+
+            row, col, ch = image.shape
+            mean = 0
+            sigma = 10
+            # generate gaussian noice
+            gauss = np.uint8(np.random.normal(mean, sigma, (row, col, ch)))
+            gauss = gauss.reshape(row, col, ch)
+
+            # add gaussian noice to image
+            gauss_noise_img = image + gauss
+            #
+            # cv2.imshow('img', image)
+            # cv2.imshow('gauss_noise_img', gauss_noise_img)
+            # cv2.waitKey()
+
+            # take image name from dict
+            img_name = img_names[key][idx]
+            # save image with gauss noice
+            cv2.imwrite(path + '/' + str(img_name) + '_gauss_noise_', gauss_noise_img)
+    print("Gauss noise finished")
+
+def saturation(img_dict, img_names):
+    for key in img_dict:
+        # reading path to file
+        pathname = os.path.dirname(sys.argv[0])
+        # make director for saturated images
+        path = pathname + '/' + key + '_saturated_image'
+
+        # check if the dir exists
+        isFile = os.path.isdir(path)
+        if isFile:
+            # delete old dir
+            shutil.rmtree(path, ignore_errors=True)
+        # make new dir
+        os.mkdir(path)
+
+        for idx in range(len(img_dict[key])):
+            image = img_dict[key][idx]
+            # change to hsv
+            hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+            # split channels
+            (h, s, v) = cv2.split(hsv_img)
+            # draw saturation offset
+            s_offset = random.randint(20, 50)
+            # add offset to saturation channel
+            s = s + s_offset
+            # merge channels
+            hsv_img = cv2.merge([h, s, v])
+            # back to BGR
+            saturated_image = cv2.cvtColor(hsv_img, cv2.COLOR_HSV2BGR)
+
+            # take image name from dict
+            img_name = img_names[key][idx]
+            # save image wrth gauss noice
+            cv2.imwrite(path + '/' + str(img_name) + '_saturation_', saturated_image)
+    print("Change saturation finished")
+
 
 def main():
     image_dict, image_names = read_image()
@@ -166,6 +240,10 @@ def main():
     flip(image_dict, image_names)
     lightening(image_dict, image_names)
     darkening(image_dict, image_names)
+    gaussian_noise(image_dict, image_names)
+    saturation(image_dict, image_names)
+
+    # TODO Zoom
 
 
 if __name__ == '__main__':
