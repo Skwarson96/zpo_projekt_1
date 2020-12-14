@@ -3,16 +3,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 from pathlib import Path
-import os
 
 from sklearn.model_selection import train_test_split
 from sklearn import cluster
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection import KFold
 from sklearn.svm import SVC
-from sklearn.neural_network import MLPClassifier
-from sklearn.ensemble import RandomForestClassifier
+
 
 
 def read_images():
@@ -81,10 +76,10 @@ def show_images(image_data):
 
 def divide_set(image_data, labels):
     train_images, valid_images, train_labels, valid_labels = train_test_split(image_data, labels, train_size=0.7, random_state=42, stratify=labels)
-    print('Len train_images', len(train_images))
-    print('Len train_labels', len(train_labels))
-    print('Len valid_images', len(valid_images))
-    print('Len valid_labels', len(valid_labels))
+    # print('Len train_images', len(train_images))
+    # print('Len train_labels', len(train_labels))
+    # print('Len valid_images', len(valid_images))
+    # print('Len valid_labels', len(valid_labels))
 
     return train_images, valid_images, train_labels, valid_labels
 
@@ -116,9 +111,7 @@ def projekt():
 
     # show_images(classified_images)
     train_images, valid_images, train_labels, valid_labels = divide_set(images, labels)
-    # clusters_()
 
-    # feature_detector_descriptor = cv2.ORB_create()
     feature_detector_descriptor = cv2.AKAZE_create()
 
     train_descriptors = []
@@ -137,14 +130,11 @@ def projekt():
     print('kmeans fit finished')
 
 
-
     X_train = apply_feature_transform(train_images, feature_detector_descriptor, kmeans, NB_WORDS)
     y_train = train_labels
     X_valid =apply_feature_transform(valid_images, feature_detector_descriptor, kmeans, NB_WORDS)
     y_valid = valid_labels
 
-    # classifier = DecisionTreeClassifier()
-    # classifier = RandomForestClassifier(verbose=True)
 
     # Support Vector Classification
     classifier = SVC()
@@ -153,75 +143,10 @@ def projekt():
     pickle.dump(kmeans, open('./vocab_model.p', 'wb'))
     pickle.dump(classifier, open('./clf.p', 'wb'))
 
-    # print('RandomForestClassifier:')
+
     print('SVC:')
     print(classifier.score(X_train, y_train))
     print(classifier.score(X_valid, y_valid))
-
-    # param_grid = {
-    #     'max_depth': [1, 5, 10, 30, 100],
-    #     'n_estimators': [1, 5, 10, 50, 100],
-    #     'criterion': ['gini', 'entropy']
-    # }
-    # tuned_parameters = [{'kernel': ['rbf'],'C': [1, 3, 5, 8, 10]}] #,
-    #                     # {'kernel': ['linear'], 'C': [1, 10, 100, 200, 500]},
-    #                     # {'kernel': ['poly'], 'C': [1, 10, 100, 200, 500]},
-    #                     # {'kernel': ['sigmoid'], 'C': [1, 10, 100, 200, 500]}]
-    # k_fold = KFold(n_splits=5)
-    #
-    # svc = SVC()
-    # grid_search = GridSearchCV(svc, tuned_parameters, cv=5)
-    # grid_search.fit(X_train, y_train)
-    #
-    # print('grid serch:')
-    # print(grid_search.score(X_train, y_train))
-    # print(grid_search.score(X_valid, y_valid))
-    #
-    # print(grid_search.best_params_)
-
-
-
-
-def testy():
-    feature_detector_descriptor = cv2.ORB_create()
-    feature_detector_descriptor = cv2.AKAZE_create()
-
-    image = cv2.imread('doge.jpg', cv2.IMREAD_COLOR)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    image_grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    if image is None:
-      raise FileNotFoundError("Error loading image")
-
-
-    fast  = cv2.FastFeatureDetector_create()
-    orb = cv2.ORB_create()
-    akaze = cv2.AKAZE_create()
-
-    keypoints = fast.detect(image_grayscale)
-
-    fast_image = cv2.drawKeypoints(image, keypoints, None, (255, 0 , 0))
-    print('FAST', len(keypoints))
-
-    keypoints = orb.detect(image_grayscale)
-    orb_image = cv2.drawKeypoints(image, keypoints, None, (255, 0 , 0))
-    print('ORB', len(keypoints))
-
-    keypoints = akaze.detect(image_grayscale)
-    keypoints, image_descriptors = feature_detector_descriptor.detectAndCompute(image, None)
-    akaze_image = cv2.drawKeypoints(image, keypoints, None, (255, 0 , 0))
-    print('AKAZE', len(keypoints), len(image_descriptors))
-    print(keypoints)
-    print(image_descriptors[0])
-
-
-    fig, ax = plt.subplots(nrows=1  , ncols=3, figsize=(20,6))
-    ax[0].imshow(fast_image)
-    ax[1].imshow(orb_image)
-    ax[2].imshow(akaze_image)
-    plt.show()
-
-
-
 
 
 
