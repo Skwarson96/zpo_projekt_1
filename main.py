@@ -20,8 +20,8 @@ def load_dataset(dataset_dir_path: Path) -> Tuple[np.ndarray, np.ndarray]:
     for i, class_dir in enumerate(sorted(dataset_dir_path.iterdir())):
         # print(i, class_dir)
         for file in class_dir.iterdir():
-            # img_file = cv2.imread(str(file), cv2.IMREAD_GRAYSCALE)
-            img_file = cv2.imread(str(file), cv2.IMREAD_COLOR)
+            img_file = cv2.imread(str(file), cv2.IMREAD_GRAYSCALE)
+            # img_file = cv2.imread(str(file), cv2.IMREAD_COLOR)
             x.append(img_file)
             y.append(i)
 
@@ -35,20 +35,17 @@ def convert_descriptor_to_histogram(descriptors, vocab_model, normalize=True) ->
     histogram[unique] += counts
     if normalize:
         histogram /= histogram.sum()
-        # print(histogram)
+
     return histogram
 
 
-def apply_feature_transform(
-        data: np.ndarray,
-        feature_detector_descriptor,
-        vocab_model
-) -> np.ndarray:
+def apply_feature_transform(data: np.ndarray, feature_detector_descriptor, vocab_model) -> np.ndarray:
     data_transformed = []
     for image in data:
         keypoints, image_descriptors = feature_detector_descriptor.detectAndCompute(image, None)
         bow_features_histogram = convert_descriptor_to_histogram(image_descriptors, vocab_model)
         data_transformed.append(bow_features_histogram)
+
     return np.asarray(data_transformed)
 
 
@@ -57,7 +54,8 @@ def data_processing(x: np.ndarray) -> np.ndarray:
 
     for idx in range(len(x)):
         image = x[idx]
-        background = np.zeros((500, 750, 3), np.uint8)
+        # background = np.zeros((500, 750, 3), np.uint8)
+        background = np.zeros((500, 750), np.uint8)
         image_width = float(np.shape(image)[1])
         image_height = float(np.shape(image)[0])
         background_width = float(np.shape(background)[1])
@@ -91,10 +89,6 @@ def data_processing(x: np.ndarray) -> np.ndarray:
         x[idx] = image
 
 
-    # for idx in range(len(x)):
-    #     cv2.imshow('img', x[idx])
-    #     cv2.waitKey()
-
     return x
 
 
@@ -109,7 +103,7 @@ def project():
     data_path = os.getenv('DATA_PATH', data_path)  # Don't change that line
     x, y = load_dataset(data_path)
     x = data_processing(x)
-    # print(y)
+
     # TODO: create a detector/descriptor here. Eg. cv2.AKAZE_create()
     feature_detector_descriptor = cv2.AKAZE_create()
 
@@ -117,18 +111,11 @@ def project():
     with Path('vocab_model.p').open('rb') as vocab_file:  # Don't change the path here
         vocab_model = pickle.load(vocab_file)
 
-    # print(vocab_model)
-    # print(vocab_model.cluster_centers_.shape)
-
-
     x_transformed = apply_feature_transform(x, feature_detector_descriptor, vocab_model)
 
     # TODO: train a classifier and save it using pickle.dump function
     with Path('clf.p').open('rb') as classifier_file:  # Don't change the path here
         clf = pickle.load(classifier_file)
-
-    # print(clf)
-    # print(x_transformed)
 
     score = clf.score(x_transformed, y)
     print(f'{first_name} {last_name} score: {score}')

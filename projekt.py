@@ -21,9 +21,10 @@ def read_images():
 
     for class_id, class_dir in enumerate(sorted(Path('data').iterdir())):
         for image_path in class_dir.iterdir():
-            image = cv2.imread(str(image_path), cv2.IMREAD_COLOR)
-
-            background = np.zeros((500, 750, 3), np.uint8)
+            # image = cv2.imread(str(image_path), cv2.IMREAD_COLOR)
+            image = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
+            # background = np.zeros((500, 750, 3), np.uint8)
+            background = np.zeros((500, 750), np.uint8)
             image_width = float(np.shape(image)[1])
             image_height = float(np.shape(image)[0])
             background_width = float(np.shape(background)[1])
