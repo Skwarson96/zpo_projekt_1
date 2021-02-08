@@ -3,7 +3,9 @@
 The project concerned the recognition of places in Poznań with the Bag of Visual Words.
 
 #Example photos used in the project 
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Wie%C5%BCowiec_Ba%C5%82tyk_w_Poznaniu.jpg/1024px-Wie%C5%BCowiec_Ba%C5%82tyk_w_Poznaniu.jpg" width="350">
+
+<img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/POL_Pozna%C5%84_Okr%C4%85glak.jpg" width="350">
+
 (source: wikipedia)
 
 ## Results:
