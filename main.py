@@ -20,8 +20,8 @@ def load_dataset(dataset_dir_path: Path) -> Tuple[np.ndarray, np.ndarray]:
     for i, class_dir in enumerate(sorted(dataset_dir_path.iterdir())):
         # print(i, class_dir)
         for file in class_dir.iterdir():
-            img_file = cv2.imread(str(file), cv2.IMREAD_GRAYSCALE)
-            # img_file = cv2.imread(str(file), cv2.IMREAD_COLOR)
+            #img_file = cv2.imread(str(file), cv2.IMREAD_GRAYSCALE)
+            img_file = cv2.imread(str(file), cv2.IMREAD_COLOR)
             x.append(img_file)
             y.append(i)
 
