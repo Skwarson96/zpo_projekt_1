@@ -8,7 +8,7 @@ The project concerned the recognition of places in Poznań with the Bag of Visua
 <img src="https://upload.wikimedia.org/wikipedia/commons/0/06/Pozna%C5%84_Cathedral_%284820969940%29.jpg" width="350">
 <img src="https://upload.wikimedia.org/wikipedia/commons/b/be/Collegium_Minus_w_Poznaniu.jpg" width="350">
 <img src="https://upload.wikimedia.org/wikipedia/commons/7/77/Wie%C5%BCowiec_Ba%C5%82tyk_w_Poznaniu.jpg" width="350">
-<img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Teatr_Wielki%2C_Poznan%2C_Polonia%2C_2014-09-18%2C_DD_51.jpg" width="350">
+<img src="https://upload.wikimedia.org/wikipedia/commons/d/d8/Teatr_Wielki_%28Opera%29_w_Poznaniu.jpg" width="350">
 
 (source: wikipedia)
 
