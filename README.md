@@ -4,7 +4,6 @@ The project concerned the recognition of places in Poznań with the Bag of Visua
 
 #Example photos used in the project 
 
-<img src="https://pl.wikipedia.org/wiki/Teatr_Wielki_im._Stanis%C5%82awa_Moniuszki_w_Poznaniu#/media/Plik:Teatr_Wielki,_Poznan,_Polonia,_2014-09-18,_DD_53.jpg" width="350">
 <img src="https://pl.wikipedia.org/wiki/Okr%C4%85glak_w_Poznaniu#/media/Plik:POL_Pozna%C5%84_Okr%C4%85glak.jpg" width="350">
 (source: wikipedia)
 
